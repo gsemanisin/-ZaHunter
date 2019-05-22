@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import Contacts
 
 class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
     
@@ -63,6 +64,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         var pin = MKAnnotationView(annotation: annotation, reuseIdentifier: nil)
         pin.image = UIImage(named: "pizza")
         pin.canShowCallout = true
+        pin.isEnabled = true
         let button = UIButton(type: .detailDisclosure)
         pin.rightCalloutAccessoryView = button
         if annotation.isEqual(mapView.userLocation){
@@ -70,6 +72,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         } else{
             return pin
         }
+    }
+    
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        print("this is a print statement")
     }
 }
 
