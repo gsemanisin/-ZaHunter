@@ -15,6 +15,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     var locationManager = CLLocationManager()
     var currentLocation: CLLocation!
     var pizza: [MKMapItem] = []
+    var address: String! = ""
+    var coordinate : (Double, Double) = (0,0)
+    //var coordinatesOfLoc: CLLocationCoordinate2D
     
     @IBOutlet weak var mapView: MKMapView!
     
@@ -30,6 +33,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         currentLocation = locations.first
+        
+        let location = locations.first
+        if location!.verticalAccuracy < 1000.0 && location!.horizontalAccuracy < 1000.0 {
+            //print("Location Found! Reverse Geocoding…")
+            reverseGeocode(location: location!)
+            locationManager.stopUpdatingLocation()
+        }
+
         
         let span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
         let center = currentLocation.coordinate
@@ -52,6 +63,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
                 self.pizza.append(mapItem)
                 let annotation = MKPointAnnotation()
                 annotation.coordinate = mapItem.placemark.coordinate
+                print(annotation.coordinate)
                 annotation.title = mapItem.name
                 self.mapView.addAnnotation(annotation)
             }
@@ -61,6 +73,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
 
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        
         var pin = MKAnnotationView(annotation: annotation, reuseIdentifier: nil)
         pin.image = UIImage(named: "pizza")
         pin.canShowCallout = true
@@ -75,7 +88,48 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        
+        //alert
+        let alertController = UIAlertController(title: "Address", message: "\(address!)", preferredStyle: .alert)
+        let action1 = UIAlertAction(title: "Thank you", style: .default, handler: nil)
+        alertController.addAction(action1)
+        self.present(alertController, animated: true, completion: nil)
+        
+        
         print("this is a print statement")
     }
+    
+    func reverseGeocode(location: CLLocation) {
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(location) { (placemarks: [CLPlacemark]?, error: Error?) in
+            let placemark = placemarks?.first
+            if let subthoroughfare = placemark?.subThoroughfare {
+                self.address = "\(subthoroughfare) \(placemark!.thoroughfare!) \n \(placemark!.locality!), \(placemark!.administrativeArea!)"
+                print(self.address!)
+                
+            } else {
+                print("no subthoroughfare")
+            }
+        }
+        
+    }
+    
+    func dropPinFor(placemark: MKPlacemark) {
+        //selectedItemPlacemark = placemark
+        
+        for annotation in mapView.annotations {
+            if annotation.isKind(of: MKPointAnnotation.self) {
+                // mapView.removeAnnotation(annotation) // removing the pins from the map
+            }
+        }
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = placemark.coordinate
+        mapView.addAnnotation(annotation)
+        self.coordinate = (placemark.coordinate.latitude, placemark.coordinate.longitude)
+        
+        print("This is the pins destinations coord \(coordinate)")
+    }
+    
 }
 
