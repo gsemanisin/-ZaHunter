@@ -88,7 +88,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        
+        //let address1 = pin
+        let annotation = view.annotation
+        let lat = annotation!.coordinate.latitude
+        let long = annotation!.coordinate.longitude
+        reverseGeocode(location: CLLocation(latitude: lat, longitude: long))
         //alert
         let alertController = UIAlertController(title: "Address", message: "\(address!)", preferredStyle: .alert)
         let action1 = UIAlertAction(title: "Thank you", style: .default, handler: nil)
@@ -114,22 +118,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         
     }
     
-    func dropPinFor(placemark: MKPlacemark) {
-        //selectedItemPlacemark = placemark
-        
-        for annotation in mapView.annotations {
-            if annotation.isKind(of: MKPointAnnotation.self) {
-                // mapView.removeAnnotation(annotation) // removing the pins from the map
-            }
-        }
-        
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = placemark.coordinate
-        mapView.addAnnotation(annotation)
-        self.coordinate = (placemark.coordinate.latitude, placemark.coordinate.longitude)
-        
-        print("This is the pins destinations coord \(coordinate)")
-    }
+    
     
 }
 
